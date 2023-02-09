@@ -15,12 +15,14 @@ const path = require('path')
 //Import Routes
     const toughtsRoutes = require('./routes/toughtsRoutes')
 
-//Import Routers
+    const authRoutes = require('./routes/authRoutes')
+
+//Import Controllers
     const ToughtController = require('./controllers/ToughtController')
 
-// Models
+// Models -> sync() irá automaticamente conectar e criar essas tabelas na database
     const Tought = require('./models/Tought')
-    const User = require("./models/user")
+    const User = require("./models/User")
 
 
 //Handlebars
@@ -31,6 +33,9 @@ const path = require('path')
         defaultLayout : 'main' ,
         layoutsDir:  path.join(__dirname + '/views/layouts'), 
 }))
+
+// Config a pasta Public
+    app.use(express.static(__dirname + '/public'));
 
 //Receber Respostas do Body
     app.use(
@@ -65,12 +70,9 @@ app.use(
 // Flash Messages
     app.use(flash())
 
-// Config a pasta Public
-    app.use(express.static(path.join(__dirname, "public")))
 
 // set session to res
     app.use((req, res , next)=> {
-
         if(req.session.userid) {
         res.locals.session = req.session
         }
@@ -80,8 +82,13 @@ app.use(
 
 //Routes
     app.use('/toughts' , toughtsRoutes)
+    
+    app.use('/' , authRoutes)
 
     app.get('/' , ToughtController.showToughts)
+
+
+//Conexão Sync
 
     conn.sync()
         .then( ()=> {

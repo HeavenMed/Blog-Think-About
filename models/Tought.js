@@ -2,11 +2,11 @@ const { DataTypes } = require('sequelize')
 
 const db = require('../db/conn')
 
-const User = require('./user')
+const User = require('./User')
 
 // User 
 
-const Tought = db.sequelize.define('Tought' , {
+const Tought = db.define('Tought' , {
     title: {
         type: DataTypes.STRING ,
         allowNull : false ,
