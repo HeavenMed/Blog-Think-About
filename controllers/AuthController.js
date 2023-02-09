@@ -12,6 +12,47 @@ module.exports = class AuthController {
         res.render('auth/register')
     }
 
+    static logout(req , res) {
+        req.session.destroy();
+        res.redirect('/login')
+    }
+
+    static async loginPost(req , res){
+        const {email , password  } = req.body
+
+        //Find user
+        const user = await User.findOne({ where: { email : email}})
+
+        if(!user){
+            req.flash('message' , 'Usuário Não Encontrado!')
+            res.render('auth/login')
+            return
+        }
+
+        //Password Match
+
+        const passwordMatch = bcrypt.compareSync(password , user.password );
+        if(!passwordMatch){
+            req.flash('message' , 'Senha Incorreta')
+            res.render('auth/login')
+            return
+
+        }
+            //Inicializar a Sessão do usuário
+            req.session.userid = user.id
+
+            req.flash('message' , 'Bem vindo(a)!');
+
+            req.session.save(() => {
+                res.redirect('/')
+            })
+
+
+
+    }
+
+
+
     static async registerPost(req , res) {
         const { name , email, password , confirmpassword } = req.body
 
@@ -20,7 +61,7 @@ module.exports = class AuthController {
         if(password != confirmpassword){
             //Flash message
             req.flash('message' , "As senhas não conferem, tente novamente!")
-            req.render('auth/register')
+            res.render('auth/register')
 
             return
         }
@@ -31,7 +72,7 @@ module.exports = class AuthController {
 
         if(checkIfUserExists){
             req.flash('message' , "O e-mail já está em Uso!");
-            req.render('auth/register')
+            res.render('auth/register')
 
             return
         }
@@ -45,13 +86,12 @@ module.exports = class AuthController {
             name,
             email,
             password : hashedPassword
-
         }
         try{
-            await User.create(user)
+            const createdUser = await User.create(user)
 
             //Inicializar a Sessão do usuário
-            req.session.userid = user.id
+            req.session.userid = createdUser.id
 
             req.flash('message' , 'cadastro realizado com sucesso!');
 
@@ -59,7 +99,6 @@ module.exports = class AuthController {
                 res.redirect('/')
             })
 
-            res.redirect('/')
         }catch(err){
             console.log(err)
         }
