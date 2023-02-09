@@ -6,13 +6,14 @@ const sequelize = new Sequelize('toughts2' , 'gui' ,'guigui167', {
 })
 
 try {
-    sequelize.authenticate()
+    //sequelize.authenticate()
     console.log("Conectamos com sucesso")
 } catch(err){
     console.log("Não foi possível" + err)
 }
 
-module.exports = {
-    Sequelize: Sequelize,
-    sequelize: sequelize
-}
+
+//db.sequelize = sequelize;
+//db.Sequelize = Sequelize;
+//module.exports = db;
+module.exports = sequelize;

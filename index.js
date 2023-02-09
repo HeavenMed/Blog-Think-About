@@ -10,22 +10,27 @@ const path = require('path')
     const app = express()
 
 //Conectando ao banco de dados
-const sequelize = require('./db/conn')
+    const conn = require('./db/conn')
 
 //Import Routes
-const toughtsRoutes = require('./routes/toughtsRoutes')
+    const toughtsRoutes = require('./routes/toughtsRoutes')
 
 //Import Routers
-const ToughtController = require('./controllers/ToughtController')
+    const ToughtController = require('./controllers/ToughtController')
 
 // Models
     const Tought = require('./models/Tought')
     const User = require("./models/user")
 
 
-//Template Engine Config
-    app.engine('handlebars' , exphbs.engine({defaultLayout : 'main'}) )
+//Handlebars
     app.set('view engine' , 'handlebars')
+    app.set('views', path.join(__dirname, 'views'));
+    app.engine('handlebars' , exphbs.engine({
+        extname:'handlebars' ,
+        defaultLayout : 'main' ,
+        layoutsDir:  path.join(__dirname + '/views/layouts'), 
+}))
 
 //Receber Respostas do Body
     app.use(
@@ -58,29 +63,30 @@ app.use(
 
 
 // Flash Messages
-app.use(flash())
+    app.use(flash())
 
 // Config a pasta Public
-app.use(express.static(path.join(__dirname, "public")))
+    app.use(express.static(path.join(__dirname, "public")))
 
 // set session to res
-app.use((req, res , next)=> {
+    app.use((req, res , next)=> {
 
-    if(req.session.userid) {
+        if(req.session.userid) {
         res.locals.session = req.session
-    }
+        }
 
     next()
 })
 
 //Routes
-app.use('/toughts' , toughtsRoutes)
+    app.use('/toughts' , toughtsRoutes)
 
-app.get('/' , ToughtController.showToughts)
+    app.get('/' , ToughtController.showToughts)
 
-sequelize.sync() //.sync({ force: true})
-    .then( ()=> {
-        app.listen(3000)
-    })
-    .catch((err)=> {console.log(err)})
+    conn.sync()
+        .then( ()=> {
+            app.listen(3000)
+        })
+        .catch((err)=> {console.log(err)})
 
+    //.sync({ force: true})
